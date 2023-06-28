@@ -194,8 +194,10 @@ input[type="file"] {
 
 /* Personnalise l'apparence du label qui sera notre nouveau bouton */
 .custom-file-upload {
+    width: 173px;
+    height: 36px;
     display: inline-block;
-    padding: 15px 30px;
+    padding: 10px 15px;
     cursor: pointer;
     background-color: #aec5d2;
     border-radius: 60px;
@@ -213,7 +215,7 @@ input[type="file"] {
 }
 
 .fa-image{
-    font-size: 40px;
+    font-size: 58px;
     color: #aec5d267 ;
     margin-bottom: 15px;
 }
@@ -224,7 +226,12 @@ input[type="file"] {
     align-items: center;
     justify-content: center;
     background-color: #E8F1F6; 
-    height: 200px;
+    height: 169px;
+}
+
+.photoUpload p{
+    font-size: 11px;
+    color: #444444;
 }
 
 /* button modifier */
