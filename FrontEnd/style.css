@@ -185,19 +185,37 @@ hr{
     margin-top: 15px;
 }
 
-/* .js-modal{
-    max-width: 200px; 
-    background-color: #1D6154;
-    color: #FFFFFF;
+
+
+/* Cache l'input de type file */
+input[type="file"] {
+    display: none;
+}
+
+/* Personnalise l'apparence du label qui sera notre nouveau bouton */
+.custom-file-upload {
+    display: inline-block;
+    padding: 15px 30px;
+    cursor: pointer;
+    background-color: #aec5d2;
     border-radius: 60px;
-    height: 30px;
-    margin: auto;
+    border: none;
+    color: #333;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 0 1px 1px rgba(0,0,0,.1);
+    vertical-align: middle;
+}
 
-} */
+.custom-file-upload:hover {
+    background-color: #aec5d28f;
+}
 
-#photoUpload {
-    height: 100px;
-    background-color: #E8F1F6; 
+.fa-image{
+    font-size: 40px;
+    color: #aec5d267 ;
+    margin-bottom: 15px;
 }
 
 .photoUpload{
@@ -205,6 +223,8 @@ hr{
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    background-color: #E8F1F6; 
+    height: 200px;
 }
 
 /* button modifier */
