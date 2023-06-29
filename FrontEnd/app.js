@@ -1,8 +1,10 @@
-// récupère les données de l'api 
+// récupère les données de l'api
+let reloadModal = localStorage.getItem("reloadModal");
+
+
 function fetchWorks() {
     const token = localStorage.getItem('token');
 
-    // Si le token n'existe pas, redirection vers la page de connexion
     if (!token) {
         if (window.location.pathname !== '/FrontEnd/login.html') {
             window.location.href = '/FrontEnd/login.html';
@@ -30,19 +32,6 @@ function fetchWorks() {
                 window.location.href = '/FrontEnd/login.html';
             }
         });
-}
-
-// Organise les données par catégorie
-function organizeByCategory(data) {
-    const result = {};
-    for (let item of data) {
-        const categoryName = item.category.name;
-        if (!result[categoryName]) {
-            result[categoryName] = [];
-        }
-        result[categoryName].push(item);
-    }
-    return result;
 }
 
 // Initialise l'élément de la galerie
@@ -77,34 +66,19 @@ function appendWorkToGallery(work, galleryElement) {
     div.appendChild(title);
     galleryElement.appendChild(div);
 }
-// Ajoute un élément de travail à la galerie de la fenètre modal 
-function appendWorkToModal(work, modalElement) {
-    let div = document.createElement('div');
-    div.className = 'img-content'
-  
-    // crée un nouvel élément img
-    let img = document.createElement('img');
-    let title = document.createElement('h4');
 
-    // attribut src de l'élément img pour pointer vers l'image
-    img.src = work.imageUrl;
-    title.textContent = 'éditer';
-    
-    // Crée un bouton de suppression pour chaque travail
-    let deleteButton = document.createElement('button');
-    deleteButton.className = 'trash-btn'
-    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-    
-    deleteButton.addEventListener('click', function () {
-        deleteWork(work.id);
-    });
 
-    // ajoute l'élément img à l'élément gallery
-    div.appendChild(img);
-    div.appendChild(title);
-    modalElement.appendChild(div);
-    div.appendChild(deleteButton);
-    modalElement.appendChild(div);
+// Organise les données par catégorie
+function organizeByCategory(data) {
+    const result = {};
+    for (let item of data) {
+        const categoryName = item.category.name;
+        if (!result[categoryName]) {
+            result[categoryName] = [];
+        }
+        result[categoryName].push(item);
+    }
+    return result;
 }
 
 // Crée un bouton pour chaque catégorie
@@ -127,6 +101,23 @@ function createCategoryButton(category, categories, data, filterContainerElement
     });
 
     return buttonElement;
+}
+
+// Crée le conteneur de filtre
+function createFilterContainer() {
+    const filterContainerElement = document.createElement('div');
+    filterContainerElement.id = 'filterContainer';
+    return filterContainerElement;
+}
+
+// Ajoute tous les boutons de catégorie au conteneur de filtre
+function addCategoryButtonsToFilterContainer(categories, data, filterContainerElement) {
+    let categoryKeys = ['Tous'].concat(Object.keys(categories));
+    for (let i = 0; i < categoryKeys.length; i++) {
+        let category = categoryKeys[i];
+        const button = createCategoryButton(category, categories, data, filterContainerElement);
+        filterContainerElement.appendChild(button);
+    }
 }
 
 // Met à jour la galerie lors du clic sur un bouton
@@ -157,29 +148,13 @@ function updateGalleryOnButtonClick(buttonElement, filterContainerElement, categ
     }
 }
 
-// Crée le conteneur de filtre
-function createFilterContainer() {
-    const filterContainerElement = document.createElement('div');
-    filterContainerElement.id = 'filterContainer';
-    return filterContainerElement;
-}
-
-// Ajoute tous les boutons de catégorie au conteneur de filtre
-function addCategoryButtonsToFilterContainer(categories, data, filterContainerElement) {
-    let categoryKeys = ['Tous'].concat(Object.keys(categories));
-    for (let i = 0; i < categoryKeys.length; i++) {
-        let category = categoryKeys[i];
-        const button = createCategoryButton(category, categories, data, filterContainerElement);
-        filterContainerElement.appendChild(button);
-    }
-}
-
 // Ajoute le conteneur de filtre et la galerie à l'élément de contenu
 function appendElementsToContent(filterContainerElement, galleryElement) {
     const contentElement = document.getElementById('content');
     contentElement.appendChild(filterContainerElement);
     contentElement.appendChild(galleryElement);
 }
+
 // supprime un travail de la gallerie 
 function deleteWork(workId) {
     fetch('http://localhost:5678/api/works/' + workId, {
@@ -192,53 +167,49 @@ function deleteWork(workId) {
             if (!response.ok) {
                 throw new Error(response.status);
             }
-            
-            refreshGallery();
         })
         .catch(error => {
             console.error('Erreur:', error);
         });
 }
 
-if (window.location.pathname === "/FrontEnd/login.html") {
-    const form = document.querySelector('form');
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
+// Ajoute un élément de travail à la galerie de la fenètre modal
+function appendWorkToModal(work, modalElement) {
+    let div = document.createElement('div');
+    div.className = 'img-content'
 
-        let email = document.getElementById('email').value;
-        let password = document.getElementById('password');
-        if (password) {
-            password = password.value;
-        }
-        fetch('http://localhost:5678/api/users/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-        })
-            .then(response => {
-                if (response.status == "200") {
-                    return response.json();
-                } else {
-                    throw new Error(response.status)
-                }
-            })
-            .then(data => {
-                if (data.token) {
-                    localStorage.setItem('token', data.token);
-                    window.location.href = '/FrontEnd/Homepage_edit.html';
-                    return
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                const errorMessageElement = document.getElementById('errorMessage');
-                errorMessageElement.textContent = 'Erreur dans l’identifiant ou le mot de passe';
-                errorMessageElement.classList.add('error');
-                errorMessageElement.style.display = 'block';
-            });
+    // crée un nouvel élément img
+    let img = document.createElement('img');
+    let title = document.createElement('h4');
+
+    // attribut src de l'élément img pour pointer vers l'image
+    img.src = work.imageUrl;
+    title.textContent = 'éditer';
+
+    // Crée un bouton de suppression pour chaque travail
+    let deleteButton = document.createElement('button');
+    deleteButton.className = 'trash-btn'
+    deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+
+    deleteButton.addEventListener('click', function () {
+        deleteWork(work.id);
+
+        fetchWorks().then(data => {
+            const modalGalleryElement = document.querySelector('#modal1 .gallerie');
+
+            modalGalleryElement.removeChild(div)
+
+            // data.forEach(work => appendWorkToModal(work, modalGalleryElement));
+
+        });
     });
+
+    // ajoute l'élément à l'élément gallery
+    div.appendChild(img);
+    div.appendChild(title);
+    modalElement.appendChild(div);
+    div.appendChild(deleteButton);
+    modalElement.appendChild(div);
 }
 
 
@@ -303,8 +274,9 @@ const focusInModal = function (e) {
     focusables[index].focus();
 }
 
-if (window.location.pathname == "/FrontEnd/Homepage_edit.html"|| window.location.pathname == "/FrontEnd/index.html") {
-    console.log("ici")
+if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.location.pathname == "/FrontEnd/index.html") {
+
+
     fetchWorks().then(data => {
         if (data) {
             const categories = organizeByCategory(data);
@@ -319,6 +291,11 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html"|| window.location
         a.addEventListener('click', openModal)
 
     })
+
+    
+
+
+
 
     window.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' || e.key === 'Esc') {
@@ -338,32 +315,69 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html"|| window.location
     });
 
 
+    const categorySelect = document.querySelector('#category');
+
+    let defaultOption = document.createElement('option');
+    defaultOption.value = "";
+    defaultOption.textContent = "";
+    categorySelect.appendChild(defaultOption);
+
+
+    fetch('http://localhost:5678/api/categories', {
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        }
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.status);
+            }
+
+            return response.json();
+        })
+        .then(data => {
+
+            data.forEach(category => {
+                let option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name; // 
+                categorySelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Erreur:', error);
+        });
+
+
+
     const addWorkForm = document.querySelector('#addWorkForm');
+
     addWorkForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
         const formData = new FormData();
-        let image = document.querySelector('#photoUpload').files[0]; 
-        let title = document.querySelector('#title').value 
-        let categorie = document.querySelector('#category').value; 
+        let image = document.querySelector('#photoUpload').files[0];
+        let title = document.querySelector('#title').value
+        let categorie = document.querySelector('#category').value;
 
-        formData.append('image', image); 
-        formData.append('title', title); 
-        formData.append('category', categorie); 
+        formData.append('image', image);
+        formData.append('title', title);
+        formData.append('category', categorie);
+
 
         fetch('http://localhost:5678/api/works', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + localStorage.getItem('token'),
             },
-            body: formData 
+            body: formData
         })
             .then(response => {
                 if (!response.ok) {
                     throw new Error(response.status);
                 }
-                // Actualise la galerie pour inclure la nouvelle œuvre
-                refreshGallery();
+                location.reload();
             })
             .catch(error => {
                 console.error('Erreur:', error);
