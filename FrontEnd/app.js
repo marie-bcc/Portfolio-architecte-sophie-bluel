@@ -184,7 +184,7 @@ function appendWorkToModal(work, modalElement) {
 
     // attribut src de l'élément img pour pointer vers l'image
     img.src = work.imageUrl;
-    title.textContent = 'éditer';
+    title.textContent = 'éditer';[]
 
     // Crée un bouton de suppression pour chaque travail
     let deleteButton = document.createElement('button');
@@ -199,7 +199,6 @@ function appendWorkToModal(work, modalElement) {
 
             modalGalleryElement.removeChild(div)
 
-            // data.forEach(work => appendWorkToModal(work, modalGalleryElement));
 
         });
     });
@@ -211,6 +210,48 @@ function appendWorkToModal(work, modalElement) {
     div.appendChild(deleteButton);
     modalElement.appendChild(div);
 }
+
+let fileInput = document.querySelector("#photoUpload");
+let preview = document.querySelector("#preview-img");
+
+fileInput.addEventListener("change", function(event) {
+  let file = event.target.files[0];
+  
+  // Créez un URL temporaire pour le fichier
+  let url = URL.createObjectURL(file);
+
+  // Définissez l'URL comme source de l'image
+  preview.src = url;
+});
+
+document.getElementById('photoUpload').addEventListener('change', function (event) {
+    const input = event.target;
+
+    if ('files' in input && input.files.length > 0) {
+        placeImage(input.files[0]);
+    }
+}, false);
+
+function placeImage(file) {
+    const imagePreview = document.getElementById('preview-img');
+    const label = document.querySelector('.custom-file-upload');
+    const p = document.querySelector('.photoUpload p');
+    const reader = new FileReader();
+    const icones = document.querySelector('.fa-image')
+
+    reader.addEventListener('load', function (event) {
+        imagePreview.src = event.target.result;
+        // Modifie le style CSS pour cacher le label et le paragraphe
+        label.style.display = 'none';
+        p.style.display = 'none';
+        icones.style.display ='none'
+    }, false);
+
+    if (file) {
+        reader.readAsDataURL(file);
+    }
+}
+
 
 
 // modal 

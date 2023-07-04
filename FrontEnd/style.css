@@ -185,6 +185,12 @@ hr{
     margin-top: 15px;
 }
 
+#preview-img {
+    max-width: 100%; 
+    height: 90%;
+}
+
+
 
 
 /* Cache l'input de type file */
