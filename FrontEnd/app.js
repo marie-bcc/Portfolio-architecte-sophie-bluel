@@ -46,6 +46,7 @@ function setupGalleryElement() {
 // Ajoute un élément de travail à la galerie de la home page 
 function appendWorkToGallery(work, galleryElement) {
     let div = document.createElement('div');
+    div.id = 'work_' + work.id;
     div.style.display = 'flex';
     div.style.flexDirection = 'column';
     div.style.alignItems = 'flex-start';
@@ -157,21 +158,23 @@ function appendElementsToContent(filterContainerElement, galleryElement) {
 
 // supprime un travail de la gallerie 
 function deleteWork(workId) {
-    fetch('http://localhost:5678/api/works/' + workId, {
+    return fetch('http://localhost:5678/api/works/' + workId, {
         method: 'DELETE',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token'),
         },
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(response.status);
-            }
-        })
-        .catch(error => {
-            console.error('Erreur:', error);
-        });
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(response.status);
+        }
+    })
+
+    .catch(error => {
+        console.error('Erreur:', error);
+    });
 }
+
 
 // Ajoute un élément de travail à la galerie de la fenètre modal
 function appendWorkToModal(work, modalElement) {
@@ -192,15 +195,21 @@ function appendWorkToModal(work, modalElement) {
     deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
 
     deleteButton.addEventListener('click', function () {
-        deleteWork(work.id);
-
-        fetchWorks().then(data => {
-            const modalGalleryElement = document.querySelector('#modal1 .gallerie');
-
-            modalGalleryElement.removeChild(div)
-
-
-        });
+        deleteWork(work.id)
+            .then(() => {
+                
+                div.remove();
+    
+                
+                let workElementOnHomePage = document.getElementById('work_' + work.id);
+                if (workElementOnHomePage) {
+                    workElementOnHomePage.remove();
+                }
+                console.log(workElementOnHomePage);
+            })
+            .catch((error) => {
+                console.error('Erreur:', error);
+            });
     });
 
     // ajoute l'élément à l'élément gallery
@@ -382,7 +391,7 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
             data.forEach(category => {
                 let option = document.createElement('option');
                 option.value = category.id;
-                option.textContent = category.name; // 
+                option.textContent = category.name; 
                 categorySelect.appendChild(option);
             });
         })
