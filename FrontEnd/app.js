@@ -1,4 +1,3 @@
-// récupère les données de l'api
 let reloadModal = localStorage.getItem("reloadModal");
 
 
@@ -26,7 +25,6 @@ function fetchWorks() {
         .catch(error => {
             console.error('Erreur:', error);
 
-            // Si le token n'est pas valide
             if (error.message == '401') {
                 localStorage.removeItem('token');
                 window.location.href = '/FrontEnd/login.html';
@@ -34,7 +32,6 @@ function fetchWorks() {
         });
 }
 
-// Initialise l'élément de la galerie
 function setupGalleryElement() {
     const element = document.getElementById('gallery');
     element.style.display = 'grid';
@@ -43,7 +40,6 @@ function setupGalleryElement() {
     return element;
 }
 
-// Ajoute un élément de travail à la galerie de la home page 
 function appendWorkToGallery(work, galleryElement) {
     let div = document.createElement('div');
     div.id = 'work_' + work.id;
@@ -52,24 +48,20 @@ function appendWorkToGallery(work, galleryElement) {
     div.style.alignItems = 'flex-start';
     div.style.margin = '10px';
 
-    // crée un nouvel élément img
     let img = document.createElement('img');
     img.style.margin = '10px';
     let title = document.createElement('h3');
 
-    // attribut src de l'élément img pour pointer vers l'image
     img.src = work.imageUrl;
     title.textContent = work.title;
     title.style.marginLeft = '10px'
 
-    // ajoute l'élément img à l'élément gallery
     div.appendChild(img);
     div.appendChild(title);
     galleryElement.appendChild(div);
 }
 
 
-// Organise les données par catégorie
 function organizeByCategory(data) {
     const result = {};
     for (let item of data) {
@@ -82,7 +74,6 @@ function organizeByCategory(data) {
     return result;
 }
 
-// Crée un bouton pour chaque catégorie
 function createCategoryButton(category, categories, data, filterContainerElement) {
     const buttonElement = document.createElement('button');
     buttonElement.style.margin = '0 10px';
@@ -96,7 +87,6 @@ function createCategoryButton(category, categories, data, filterContainerElement
     buttonElement.style.backgroundColor = 'white'
     buttonElement.textContent = category;
 
-    // Met à jour la galerie lorsque le bouton est cliqué
     buttonElement.addEventListener('click', () => {
         updateGalleryOnButtonClick(buttonElement, filterContainerElement, categories, data);
     });
@@ -104,14 +94,12 @@ function createCategoryButton(category, categories, data, filterContainerElement
     return buttonElement;
 }
 
-// Crée le conteneur de filtre
 function createFilterContainer() {
     const filterContainerElement = document.createElement('div');
     filterContainerElement.id = 'filterContainer';
     return filterContainerElement;
 }
 
-// Ajoute tous les boutons de catégorie au conteneur de filtre
 function addCategoryButtonsToFilterContainer(categories, data, filterContainerElement) {
     let categoryKeys = ['Tous'].concat(Object.keys(categories));
     for (let i = 0; i < categoryKeys.length; i++) {
@@ -121,9 +109,7 @@ function addCategoryButtonsToFilterContainer(categories, data, filterContainerEl
     }
 }
 
-// Met à jour la galerie lors du clic sur un bouton
 function updateGalleryOnButtonClick(buttonElement, filterContainerElement, categories, data) {
-    // Supprime la classe "button-selected" de tous les boutons
     const buttons = filterContainerElement.querySelectorAll('button');
     buttons.forEach(button => {
         button.classList.remove('button-selected');
@@ -131,16 +117,13 @@ function updateGalleryOnButtonClick(buttonElement, filterContainerElement, categ
         button.style.color = '#1D6154';
     });
 
-    // Ajoute la classe "button-selected" au bouton sélectionné
     buttonElement.classList.add('button-selected');
     buttonElement.style.backgroundColor = '#1D6154';
     buttonElement.style.color = 'white';
 
-    // Vide la galerie
     const galleryElement = document.getElementById('gallery');
     galleryElement.innerHTML = '';
 
-    // Ajoute les travaux de la catégorie sélectionnée à la galerie
     const selectedCategory = buttonElement.textContent;
     if (selectedCategory === 'Tous') {
         data.forEach(work => appendWorkToGallery(work, galleryElement));
@@ -149,14 +132,12 @@ function updateGalleryOnButtonClick(buttonElement, filterContainerElement, categ
     }
 }
 
-// Ajoute le conteneur de filtre et la galerie à l'élément de contenu
 function appendElementsToContent(filterContainerElement, galleryElement) {
     const contentElement = document.getElementById('content');
     contentElement.appendChild(filterContainerElement);
     contentElement.appendChild(galleryElement);
 }
 
-// supprime un travail de la gallerie 
 function deleteWork(workId) {
     return fetch('http://localhost:5678/api/works/' + workId, {
         method: 'DELETE',
@@ -164,32 +145,28 @@ function deleteWork(workId) {
             'Authorization': 'Bearer ' + localStorage.getItem('token'),
         },
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(response.status);
-        }
-    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(response.status);
+            }
+        })
 
-    .catch(error => {
-        console.error('Erreur:', error);
-    });
+        .catch(error => {
+            console.error('Erreur:', error);
+        });
 }
 
 
-// Ajoute un élément de travail à la galerie de la fenètre modal
 function appendWorkToModal(work, modalElement) {
     let div = document.createElement('div');
     div.className = 'img-content'
 
-    // crée un nouvel élément img
     let img = document.createElement('img');
     let title = document.createElement('h4');
 
-    // attribut src de l'élément img pour pointer vers l'image
     img.src = work.imageUrl;
     title.textContent = 'éditer';[]
 
-    // Crée un bouton de suppression pour chaque travail
     let deleteButton = document.createElement('button');
     deleteButton.className = 'trash-btn'
     deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
@@ -197,22 +174,21 @@ function appendWorkToModal(work, modalElement) {
     deleteButton.addEventListener('click', function () {
         deleteWork(work.id)
             .then(() => {
-                
+
                 div.remove();
-    
-                
+
+
                 let workElementOnHomePage = document.getElementById('work_' + work.id);
                 if (workElementOnHomePage) {
                     workElementOnHomePage.remove();
                 }
-                console.log(workElementOnHomePage);
+
             })
             .catch((error) => {
                 console.error('Erreur:', error);
             });
     });
 
-    // ajoute l'élément à l'élément gallery
     div.appendChild(img);
     div.appendChild(title);
     modalElement.appendChild(div);
@@ -223,14 +199,12 @@ function appendWorkToModal(work, modalElement) {
 let fileInput = document.querySelector("#photoUpload");
 let preview = document.querySelector("#preview-img");
 
-fileInput.addEventListener("change", function(event) {
-  let file = event.target.files[0];
-  
-  // Créez un URL temporaire pour le fichier
-  let url = URL.createObjectURL(file);
+fileInput.addEventListener("change", function (event) {
+    let file = event.target.files[0];
 
-  // Définissez l'URL comme source de l'image
-  preview.src = url;
+    let url = URL.createObjectURL(file);
+
+    preview.src = url;
 });
 
 document.getElementById('photoUpload').addEventListener('change', function (event) {
@@ -250,10 +224,9 @@ function placeImage(file) {
 
     reader.addEventListener('load', function (event) {
         imagePreview.src = event.target.result;
-        // Modifie le style CSS pour cacher le label et le paragraphe
         label.style.display = 'none';
         p.style.display = 'none';
-        icones.style.display ='none'
+        icones.style.display = 'none'
     }, false);
 
     if (file) {
@@ -342,7 +315,7 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
 
     })
 
-    
+
 
 
 
@@ -391,7 +364,7 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
             data.forEach(category => {
                 let option = document.createElement('option');
                 option.value = category.id;
-                option.textContent = category.name; 
+                option.textContent = category.name;
                 categorySelect.appendChild(option);
             });
         })
@@ -435,3 +408,6 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
     });
 
 }
+
+
+
