@@ -196,6 +196,14 @@ function placeImage(file) {
     }
 }
 
+function createWorkFromResponse(response) {
+    return response.json().then(work => {
+        const galleryElement = document.getElementById('gallery');
+        appendWorkToGallery(work, galleryElement);
+    });
+}
+
+
 // modal 
 let modalStack = [];
 let focusables = [];
@@ -322,6 +330,8 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
         });
 
 
+
+    // ...
     const addWorkForm = document.querySelector('#addWorkForm');
     addWorkForm.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -346,16 +356,51 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
                 if (!response.ok) {
                     throw new Error(response.status);
                 }
+                return response.json();
+            })
+            .then(work => {  // Récupérez les données du nouveau travail
+                // Ajoutez le nouveau travail à la galerie et au modal
+                const galleryElement = document.getElementById('gallery');
+                const modalGalleryElement = document.querySelector('#modal1 .gallerie');
+                appendWorkToGallery(work, galleryElement);
+                appendWorkToModal(work, modalGalleryElement);
+
                 // Si la requête réussit
                 alert("Le travail a été posté avec succès !");
-                location.reload();
             })
             .catch(error => {
                 console.error('Erreur:', error);
                 // Si la requête échouée
                 alert("Une erreur s'est produite lors de la publication du travail. Veuillez réessayer.");
             });
+
+        // Réinitialiser les champs du formulaire
+        document.querySelector('#title').value = "";
+        document.querySelector('#category').value = "";
+        // Réinitialiser l'image d'aperçu
+        document.querySelector("#preview-img").src = "";
+
+        // Cloner et remplacer l'élément d'input pour le fichier
+        let oldInput = document.querySelector('#photoUpload');
+        let newInput = oldInput.cloneNode(true);
+        oldInput.parentNode.replaceChild(newInput, oldInput);
+
+        // Afficher à nouveau le bouton d'upload d'image
+        const label = document.querySelector('.custom-file-upload');
+        const p = document.querySelector('.photoUpload p');
+        const icones = document.querySelector('.fa-image');
+        label.style.display = 'inline-block';
+        p.style.display = 'block';
+        icones.style.display = 'block';
     });
+
+
+
+
+
+
+
+
 
 
     let fileInput = document.querySelector("#photoUpload");
