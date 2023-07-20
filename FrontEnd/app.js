@@ -1,21 +1,7 @@
 let reloadModal = localStorage.getItem("reloadModal");
 
-
 function fetchWorks() {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-        if (window.location.pathname !== '/FrontEnd/login.html') {
-            window.location.href = '/FrontEnd/login.html';
-        }
-        return Promise.reject('No token');
-    }
-
-    return fetch('http://localhost:5678/api/works', {
-        headers: {
-            'Authorization': 'Bearer ' + token,
-        },
-    })
+    return fetch('http://localhost:5678/api/works')
         .then(response => {
             if (!response.ok) {
                 throw new Error(response.status);
@@ -24,13 +10,9 @@ function fetchWorks() {
         })
         .catch(error => {
             console.error('Erreur:', error);
-
-            if (error.message == '401') {
-                localStorage.removeItem('token');
-                window.location.href = '/FrontEnd/login.html';
-            }
         });
 }
+
 
 function setupGalleryElement() {
     const element = document.getElementById('gallery');
@@ -60,7 +42,6 @@ function appendWorkToGallery(work, galleryElement) {
     div.appendChild(title);
     galleryElement.appendChild(div);
 }
-
 
 function organizeByCategory(data) {
     const result = {};
@@ -196,25 +177,6 @@ function appendWorkToModal(work, modalElement) {
     modalElement.appendChild(div);
 }
 
-let fileInput = document.querySelector("#photoUpload");
-let preview = document.querySelector("#preview-img");
-
-fileInput.addEventListener("change", function (event) {
-    let file = event.target.files[0];
-
-    let url = URL.createObjectURL(file);
-
-    preview.src = url;
-});
-
-document.getElementById('photoUpload').addEventListener('change', function (event) {
-    const input = event.target;
-
-    if ('files' in input && input.files.length > 0) {
-        placeImage(input.files[0]);
-    }
-}, false);
-
 function placeImage(file) {
     const imagePreview = document.getElementById('preview-img');
     const label = document.querySelector('.custom-file-upload');
@@ -233,8 +195,6 @@ function placeImage(file) {
         reader.readAsDataURL(file);
     }
 }
-
-
 
 // modal 
 let modalStack = [];
@@ -315,11 +275,6 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
 
     })
 
-
-
-
-
-
     window.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' || e.key === 'Esc') {
             closeModal(e)
@@ -339,7 +294,6 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
 
 
     const categorySelect = document.querySelector('#category');
-
     let defaultOption = document.createElement('option');
     defaultOption.value = "";
     defaultOption.textContent = "";
@@ -347,20 +301,15 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
 
 
     fetch('http://localhost:5678/api/categories', {
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('token'),
-        }
+        method: 'GET'
     })
         .then(response => {
             if (!response.ok) {
                 throw new Error(response.status);
             }
-
             return response.json();
         })
         .then(data => {
-
             data.forEach(category => {
                 let option = document.createElement('option');
                 option.value = category.id;
@@ -373,9 +322,7 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
         });
 
 
-
     const addWorkForm = document.querySelector('#addWorkForm');
-
     addWorkForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
@@ -388,7 +335,6 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
         formData.append('title', title);
         formData.append('category', categorie);
 
-
         fetch('http://localhost:5678/api/works', {
             method: 'POST',
             headers: {
@@ -400,13 +346,36 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
                 if (!response.ok) {
                     throw new Error(response.status);
                 }
+                // Si la requête réussit
+                alert("Le travail a été posté avec succès !");
                 location.reload();
             })
             .catch(error => {
                 console.error('Erreur:', error);
+                // Si la requête échouée
+                alert("Une erreur s'est produite lors de la publication du travail. Veuillez réessayer.");
             });
     });
 
+
+    let fileInput = document.querySelector("#photoUpload");
+    let preview = document.querySelector("#preview-img");
+
+    fileInput.addEventListener("change", function (event) {
+        let file = event.target.files[0];
+
+        let url = URL.createObjectURL(file);
+
+        preview.src = url;
+    });
+
+    document.getElementById('photoUpload').addEventListener('change', function (event) {
+        const input = event.target;
+
+        if ('files' in input && input.files.length > 0) {
+            placeImage(input.files[0]);
+        }
+    }, false);
 }
 
 
