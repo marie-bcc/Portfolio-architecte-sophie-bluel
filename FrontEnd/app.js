@@ -117,7 +117,10 @@ function updateGalleryOnButtonClick(buttonElement, filterContainerElement, categ
 
 function appendElementsToContent(filterContainerElement, galleryElement) {
     const contentElement = document.getElementById('content');
-    contentElement.appendChild(filterContainerElement);
+    if (!isUserConnected()) {
+        contentElement.appendChild(filterContainerElement);
+    }
+    
     contentElement.appendChild(galleryElement);
 }
 
@@ -204,6 +207,23 @@ function createWorkFromResponse(response) {
         appendWorkToGallery(work, galleryElement);
     });
 }
+
+function isUserConnected() {
+    return localStorage.getItem('token') !== null;
+}
+
+function logoutUser() {
+    localStorage.removeItem('token');
+    window.location.href = "/FrontEnd/index.html";
+    location.reload();
+}
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    document.getElementById('logoutButton').addEventListener('click', logoutUser);
+});
+
+
+
 
 
 // modal 
@@ -378,7 +398,6 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
         
         document.querySelector('#title').value = "";
         document.querySelector('#category').value = "";
-        
         document.querySelector("#preview-img").src = "";
 
         // Clone et remplace l'élément d'input pour le fichier
@@ -398,12 +417,9 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
 
     let fileInput = document.querySelector("#photoUpload");
     let preview = document.querySelector("#preview-img");
-
     fileInput.addEventListener("change", function (event) {
         let file = event.target.files[0];
-
         let url = URL.createObjectURL(file);
-
         preview.src = url;
     });
 
@@ -415,6 +431,7 @@ if (window.location.pathname == "/FrontEnd/Homepage_edit.html" || window.locatio
         }
     }, false);
 }
+
 
 
 
